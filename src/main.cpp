@@ -13,8 +13,7 @@ struct ShapeStr {
     float colores[CANTIDADCOLORES];
     float velocidadX;
     float velocidadY;
-    int radio;
-    sf::Vector2f posicion;
+    float radio;
 };
 
 
@@ -31,16 +30,11 @@ int main(int argc, char *argv[])
         std::printf("No se pudo inicializar la ventana");
         std::exit(1);
     }
-
     sf::Clock clock;
     ImGui::GetStyle().ScaleAllSizes(2.0f);
     ImGui::GetIO().FontGlobalScale = 2.0f;
 
     sf::Vector2f vec2 = {20.0, 10.0};
-    sf::RectangleShape rT(vec2);
-    sf::RectangleShape rR(vec2);
-    sf::RectangleShape rG(vec2);
-
     ShapeStr* circleB = new ShapeStr;
     ShapeStr* circleP = new ShapeStr;
     ShapeStr* circleG = new ShapeStr;
@@ -54,12 +48,11 @@ int main(int argc, char *argv[])
     // entre ambas librerias
     
     //########Circulo AZul############
-    circleB->nombre = "CBlue";
     float c[3] = {0.0f, 1.0f, 1.0f};
+    circleB->nombre = "CBlue";
     //circleB->colores = {0.0f, 1.0f, 1.0f};
     circleB->figuraCirculo = sf::CircleShape(20.0f, 10.0f);
-    circleB->posicion = {10.0f, 10.0f};
-    circleB->figuraCirculo.setPosition(circleB->posicion);
+    circleB->figuraCirculo.setPosition({10.0f, 10.0f});
     circleB->velocidadX = 1.0f;
     circleB->velocidadY = 0.5f;
 
@@ -68,8 +61,7 @@ int main(int argc, char *argv[])
     //float c[3] = {0.0f, 1.0f, 1.0f};
     //circleB->colores = {0.0f, 1.0f, 1.0f};
     circleP->figuraCirculo = sf::CircleShape(50.0f, 10.0f);;
-    circleP->posicion = {100.0f, 200.0f};
-    circleP->figuraCirculo.setPosition(circleP->posicion);
+    circleP->figuraCirculo.setPosition({100.0f, 200.0f});
     circleP->velocidadX = 0.1f;
     circleP->velocidadY = 0.6f;
 
@@ -78,8 +70,7 @@ int main(int argc, char *argv[])
     //float c[3] = {0.0f, 1.0f, 1.0f};
     //circleB->colores = {0.0f, 1.0f, 1.0f};
     circleG->figuraCirculo = sf::CircleShape(100.0f, 10.0f);
-    circleG->posicion = {60.0f, 445.0f};
-    circleG->figuraCirculo.setPosition(circleG->posicion);
+    circleG->figuraCirculo.setPosition({60.0f, 445.0f});
     circleG->velocidadX = 0.5f;
     circleG->velocidadY = 0.8f;
 
@@ -88,8 +79,7 @@ int main(int argc, char *argv[])
     rectT->figuraRectangulo = sf::RectangleShape(vec2);
     //float c[3] = {0.0f, 1.0f, 1.0f};
     //circleB->colores = {0.0f, 1.0f, 1.0f};
-    rectT->posicion = {300.0f, 500.0f};
-    rectT->figuraRectangulo.setPosition(rectT->posicion);
+    rectT->figuraRectangulo.setPosition({300.0f, 500.0f});
     rectT->velocidadX = 1.0f;
     rectT->velocidadY = 0.4f;
 
@@ -98,8 +88,7 @@ int main(int argc, char *argv[])
     rectR->figuraRectangulo = sf::RectangleShape(vec2);
     //float c[3] = {0.0f, 1.0f, 1.0f};
     //circleB->colores = {0.0f, 1.0f, 1.0f};
-    rectR->posicion = {150.0f, 450.0f};
-    rectR->figuraRectangulo.setPosition(rectR->posicion);
+    rectR->figuraRectangulo.setPosition({150.0f, 450.0f});
     rectR->velocidadX = 0.7f;
     rectR->velocidadY = 0.7f;
 
@@ -108,8 +97,7 @@ int main(int argc, char *argv[])
     rectG->figuraRectangulo = sf::RectangleShape(vec2);
     //float c[3] = {0.0f, 1.0f, 1.0f};
     //circleB->colores = {0.0f, 1.0f, 1.0f};
-    rectG->posicion = {200.0f, 335.5f};
-    rectG->figuraRectangulo.setPosition(rectG->posicion);
+    rectG->figuraRectangulo.setPosition({200.0f, 335.5f});
     rectG->velocidadX = 0.6f;
     rectG->velocidadY = 0.6f;
 
@@ -168,9 +156,9 @@ int main(int argc, char *argv[])
         ImGui::Checkbox("Dibujar Figura", &drawShape);
         ImGui::SameLine();
         ImGui::Checkbox("Dibujar Texto", &drawText);
-        ImGui::SliderFloat("Escala", &radiusFigureSelected, 0.0f, 300.0f);
+        ImGui::SliderFloat("Escala", &shapes[indexShapeSelected]->radio, 0.0f, 300.0f);
         ImGui::SliderInt("Tamaño", &circleSegments, 3, 64);
-        //ImGui::ColorEdit3("Color del circulo", c);
+        ImGui::ColorEdit3("Color del circulo", c);
         ImGui::InputText("Texto", displayString, 255);
         if (ImGui::Button("Setear texto nuevo"))
         {
@@ -184,9 +172,8 @@ int main(int argc, char *argv[])
         }
         ImGui::End();
 
-        circleB->figuraCirculo.setRadius(circleSegments);
-        circleB->figuraCirculo.setRadius(radiusFigureSelected);
-        circleB->figuraCirculo.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+        shapes[indexShapeSelected]->figuraCirculo.setRadius(shapes[indexShapeSelected]->radio);
+        shapes[indexShapeSelected]->figuraCirculo.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
 
         for (int i = 0; i < IM_ARRAYSIZE(shapes); i++) //Cambiar direccion si tocan el borde
         {
