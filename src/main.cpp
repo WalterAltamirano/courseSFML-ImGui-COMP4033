@@ -3,24 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <imgui-SFML.h>
 #include <imgui.h>
-#define CANTIDADCOLORES 3
-
-struct ShapeStr {
-    sf::CircleShape figuraCirculo;
-    sf::RectangleShape figuraRectangulo;
-    std::string nombre;
-    float colores[CANTIDADCOLORES];
-    float velocidadX;
-    float velocidadY;
-    float radio;
-    bool estaActiva;
-};
+#include "Shape.h"
 
 int main(int argc, char *argv[])
 {
     const int wWidth = 800;
     const int wHeight = 600;
-
+    
     //{ elem1, elem2 } es un vector con dos elementos;como un conjunto.
     auto window = sf::RenderWindow(sf::VideoMode({wWidth, wHeight}), "Assignament 1");
     window.setFramerateLimit(60);
@@ -36,78 +25,35 @@ int main(int argc, char *argv[])
 
     //Inicializando figuras con sus caracteristicas.
     sf::Vector2f vec2 = {20.0, 10.0};
-    ShapeStr* circleB = new ShapeStr;
-    ShapeStr* circleP = new ShapeStr;
-    ShapeStr* circleG = new ShapeStr;
-    ShapeStr* rectR = new ShapeStr;
-    ShapeStr* rectG = new ShapeStr;
-    ShapeStr* rectT = new ShapeStr;
+    ManagementShape controladorFiguras = crearControlador();
     
     //########Circulo AZul############
     float c[3] = {0.0f, 1.0f, 1.0f};
-    circleB->nombre = "CBlue";
     //circleB->colores = {0.0f, 1.0f, 1.0f};
-    circleB->figuraCirculo = sf::CircleShape(20.0f, 10.0f);
-    circleB->figuraCirculo.setPosition({10.0f, 10.0f});
-    circleB->velocidadX = 1.0f;
-    circleB->velocidadY = 0.5f;
-    circleB->estaActiva = true;
-
+    agregarCirculo(controladorFiguras,20.0f,10.0f,"CBlue",1.0f,0.5f,1.0f,10.0f,10.0f);
+    
     //########Circulo Purpura############
-    circleP->nombre = "CPurple";
-    //float c[3] = {0.0f, 1.0f, 1.0f};
-    //circleB->colores = {0.0f, 1.0f, 1.0f};
-    circleP->figuraCirculo = sf::CircleShape(50.0f, 10.0f);;
-    circleP->figuraCirculo.setPosition({100.0f, 200.0f});
-    circleP->velocidadX = 0.1f;
-    circleP->velocidadY = 0.6f;
-    circleP->estaActiva = true;
-
+    agregarCirculo(controladorFiguras,50.0f,10.0f,"CPurple",0.1f,0.6f,1.0f,100.0f,200.0f);
+    
     //########Circulo Verde############
-    circleG->nombre = "CGreen";
-    //float c[3] = {0.0f, 1.0f, 1.0f};
-    //circleB->colores = {0.0f, 1.0f, 1.0f};
-    circleG->figuraCirculo = sf::CircleShape(100.0f, 10.0f);
-    circleG->figuraCirculo.setPosition({60.0f, 445.0f});
-    circleG->velocidadX = 0.5f;
-    circleG->velocidadY = 0.8f;
-    circleG->estaActiva = true;
+    agregarCirculo(controladorFiguras,100.0f,10.0f,"CGreen",1.0f,0.5f,0.8f,60.0f,445.0f);
 
-    //########Rectangulo Fuxia azul############
-    rectT->nombre = "RTeal";
-    rectT->figuraRectangulo = sf::RectangleShape(vec2);
-    //float c[3] = {0.0f, 1.0f, 1.0f};
-    //circleB->colores = {0.0f, 1.0f, 1.0f};
-    rectT->figuraRectangulo.setPosition({300.0f, 500.0f});
-    rectT->velocidadX = 1.0f;
-    rectT->velocidadY = 0.4f;
-    rectT->estaActiva = true;
-
+     //########Rectangulo Fuxia azul############
+    agregarRectangulo(controladorFiguras,20.0,10.0,"RTeal",1.0f,0.4f,300.0f,500.0f);
+    
     //########Rectangulo Rojo############
-    rectR->nombre = "RRed";
-    rectR->figuraRectangulo = sf::RectangleShape(vec2);
-    //float c[3] = {0.0f, 1.0f, 1.0f};
-    //circleB->colores = {0.0f, 1.0f, 1.0f};
-    rectR->figuraRectangulo.setPosition({150.0f, 450.0f});
-    rectR->velocidadX = 0.7f;
-    rectR->velocidadY = 0.7f;
-    rectR->estaActiva = true;
-
+    agregarRectangulo(controladorFiguras,20.0,10.0,"RRed",0.7f,0.7f,150.0f,450.0f);
+    
     //########Rectangulo Verde############
-    rectG->nombre = "RGreen";
-    rectG->figuraRectangulo = sf::RectangleShape(vec2);
-    //float c[3] = {0.0f, 1.0f, 1.0f};
-    //circleB->colores = {0.0f, 1.0f, 1.0f};
-    rectG->figuraRectangulo.setPosition({200.0f, 335.5f});
-    rectG->velocidadX = 0.6f;
-    rectG->velocidadY = 0.6f;
-    rectG->estaActiva = true;
+    agregarRectangulo(controladorFiguras,20.0,10.0,"RGray",0.6f,0.6f,200.0f,335.5f);
 
+    //Variables interactivas con interfaz ImGui de figura actual elegida.
     float radiusFigureSelected = 50;
     int circleSegments = 32;
     float shapeSpeedX = 1.0f;
     float shapeSpeedY = 0.5f;
     bool drawText = true;
+    bool drawShape = true;
 
     //Manejo de Fuente de Texto
     sf::Font myFont;
@@ -151,18 +97,18 @@ int main(int argc, char *argv[])
         // Version de opciones con tamaño fijo.
         const char* shapesCombo[] = {"CGreen", "CBlue", "CPurple","RRed","RGray", "RTail"};
         static int indexShapeSelected = 0;
-        ShapeStr* shapes[] = {circleG,circleB, circleP,rectR, rectG,rectT};
+        //ShapeStr* shapes[] = {circleG,circleB, circleP,rectR, rectG,rectT};
         ImGui::Combo("Shapes", &indexShapeSelected, shapesCombo, IM_ARRAYSIZE(shapesCombo));
         
         //Dibujar Figura
-        ImGui::Checkbox("Dibujar Figura", &shapes[indexShapeSelected]->estaActiva);
+        ImGui::Checkbox("Dibujar Figura", &drawShape);
         ImGui::SameLine();
         
         //Dibujar Texto
         ImGui::Checkbox("Dibujar Texto", &drawText);
         
         //Escalar Figura Actual
-        ImGui::SliderFloat("Escala", &shapes[indexShapeSelected]->radio, 0.0f, 300.0f);
+        //ImGui::SliderFloat("Escala", &shapes[indexShapeSelected]->radio, 0.0f, 300.0f);
         
         //Cambiar Colores de Figura Actual
         ImGui::ColorEdit3("Color del circulo", c);
@@ -184,73 +130,96 @@ int main(int argc, char *argv[])
         ImGui::End();
 
         //Actualizar Inputs de ImGui para Figura Actual
-        shapes[indexShapeSelected]->figuraCirculo.setRadius(shapes[indexShapeSelected]->radio);
-        shapes[indexShapeSelected]->figuraCirculo.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+        std::string nameActualShape = shapesCombo[indexShapeSelected];
+        if(esCirculo(controladorFiguras,nameActualShape)) {
+            sf::CircleShape circleActual = obtenerCirculo(controladorFiguras,nameActualShape);
+            circleActual.setRadius(radiusFigureSelected);
+            circleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+        } else {
+            sf::RectangleShape rectangleActual = obtenerRectangulo(controladorFiguras,nameActualShape);
+            rectangleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+        }
+            
 
         //Cambiar direccion si tocan el borde
-        for (int i = 0; i < IM_ARRAYSIZE(shapes); i++) 
+        for (int i = 0; i < IM_ARRAYSIZE(shapesCombo); i++) 
         {
-            if(i <= 2) {
-                if (shapes[i]->figuraCirculo.getGlobalBounds().position.x < 0 ||
-                    shapes[i]->figuraCirculo.getGlobalBounds().position.x > wWidth)
+            std::string figuraActual = shapesCombo[i];
+            if(esCirculo(controladorFiguras,figuraActual)) {
+                sf::CircleShape circleActual = obtenerCirculo(controladorFiguras,figuraActual);
+                if(circleActual.getGlobalBounds().position.x < 0 ||
+                    circleActual.getGlobalBounds().position.x > wWidth) 
                 {
-                    shapes[i]->velocidadX *= -1;
+                        invertirVelocidadXDe(controladorFiguras,figuraActual);
                 }
-                if (shapes[i]->figuraCirculo.getGlobalBounds().position.y < 0 ||
-                    shapes[i]->figuraCirculo.getGlobalBounds().position.y > wHeight)
+                if(circleActual.getGlobalBounds().position.y < 0 ||
+                    circleActual.getGlobalBounds().position.y > wHeight) 
                 {
-                    shapes[i]->velocidadY *= -1;
+                        invertirVelocidadYDe(controladorFiguras,figuraActual);
                 }
+
             } else {
-                if (shapes[i]->figuraRectangulo.getGlobalBounds().position.x < 0 ||
-                    shapes[i]->figuraRectangulo.getGlobalBounds().position.x > wWidth)
-                {
-                    shapes[i]->velocidadX *= -1;
-                }
-                if (shapes[i]->figuraRectangulo.getGlobalBounds().position.y < 0 ||
-                    shapes[i]->figuraRectangulo.getGlobalBounds().position.y > wHeight)
-                {
-                    shapes[i]->velocidadY *= -1;
-                }
+                sf::RectangleShape rectangleActual = obtenerRectangulo(controladorFiguras,nameActualShape);
+                rectangleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
             }
         }
 
         //Actualizar posiciones segun su velocidad.
-        circleB->figuraCirculo.setPosition({
-            circleB->figuraCirculo.getPosition().x + circleB->velocidadX, 
-            circleB->figuraCirculo.getPosition().y + circleB->velocidadY
-        });
-        circleP->figuraCirculo.setPosition({
-            circleP->figuraCirculo.getPosition().x + circleG->velocidadX,
-            circleP->figuraCirculo.getPosition().y + circleG->velocidadY
-        });
-        circleG->figuraCirculo.setPosition({
-            circleG->figuraCirculo.getPosition().x + circleG->velocidadX,
-            circleG->figuraCirculo.getPosition().y + circleG->velocidadY
-        });
-        rectR->figuraRectangulo.setPosition({
-            rectR->figuraRectangulo.getPosition().x + rectR->velocidadX,
-            rectR->figuraRectangulo.getPosition().y + rectR->velocidadY
-        });
-        rectT->figuraRectangulo.setPosition({
-            rectT->figuraRectangulo.getPosition().x + rectT->velocidadX,
-            rectT->figuraRectangulo.getPosition().y + rectT->velocidadY
-        });
-        rectG->figuraRectangulo.setPosition({
-            rectG->figuraRectangulo.getPosition().x + rectG->velocidadX,
-            rectG->figuraRectangulo.getPosition().y + rectG->velocidadY
-        });
-        
+        sf::CircleShape blueCircle = obtenerCirculo(controladorFiguras,"CBlue");
+        blueCircle.setPosition(
+            {
+                blueCircle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "CBlue"),
+                blueCircle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "CBlue")
+            }
+        );
+        sf::CircleShape purpleCircle = obtenerCirculo(controladorFiguras,"CPurple");
+        purpleCircle.setPosition(
+            {
+                purpleCircle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "CPurple"),
+                purpleCircle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "CPurple")
+            }
+        );
+        sf::CircleShape greenCircle = obtenerCirculo(controladorFiguras,"CGreen");
+        greenCircle.setPosition(
+            {
+                greenCircle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "CGreen"),
+                greenCircle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "CGreen")
+            }
+        );
+        sf::RectangleShape tealRectangle = obtenerRectangulo(controladorFiguras,"RTeal");
+        tealRectangle.setPosition(
+            {
+                tealRectangle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "RTeal"),
+                tealRectangle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "RTeal")
+            }
+        );
+        sf::RectangleShape redRectangle = obtenerRectangulo(controladorFiguras,"RRed");
+        redRectangle.setPosition(
+            {
+                redRectangle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "RRed"),
+                redRectangle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "RRed")
+            }
+        );
+        sf::RectangleShape grayRectangle = obtenerRectangulo(controladorFiguras,"RGray");
+        grayRectangle.setPosition(
+            {
+                grayRectangle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "RGray"),
+                grayRectangle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "RGray")
+            }
+        );
         //Renderizado
         window.clear();
-        for(int i = 0; i < IM_ARRAYSIZE(shapes); i++) {
-            if(i <= 2) {
-                if(shapes[i]->estaActiva) {
-                    window.draw(shapes[i]->figuraCirculo);
-                }
-            } else {
-                if(shapes[i]->estaActiva) {
-                    window.draw(shapes[i]->figuraRectangulo);
+        //Si en este frame se cambio que se dibuje la figura seleccionada, entonces lo cambio.
+        actualizarDibujadoDe(controladorFiguras,shapesCombo[indexShapeSelected], drawShape);
+
+        for(int i = 0; i < IM_ARRAYSIZE(shapesCombo); i++) 
+        {
+            std::string figuraActual = shapesCombo[i];
+            if(esVisible(controladorFiguras,figuraActual)) {
+                if(esCirculo(controladorFiguras, figuraActual)) {
+                    window.draw(obtenerCirculo(controladorFiguras,figuraActual));
+                } else {
+                    window.draw(obtenerRectangulo(controladorFiguras,figuraActual));
                 }
             }
         }
