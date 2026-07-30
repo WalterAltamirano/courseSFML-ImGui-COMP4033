@@ -1,9 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <imgui-SFML.h>
 #include <imgui.h>
+#include <iostream>
 #define CANTIDADCOLORES 3
-
-typedef ShapeNode* NodeSh;
 
 struct ShapeNode {
     sf::CircleShape figuraCirculo;
@@ -16,15 +15,15 @@ struct ShapeNode {
     bool esCirculo;
     ShapeNode* next;
 };
-
-typedef ShapeHeader* ManagementShape;
+typedef ShapeNode* NodeSh;
 
 struct ShapeHeader {
     NodeSh first;
     NodeSh last;
     int cantidadDeFiguras;
-
+    
 };
+typedef ShapeHeader* ManagementShape;
 /*
     Inv.de.Rep:
         *Sea un encabezado de figuras "ShapeHeader" "sh", sii "sh->first == NULL" entonces "sh->last = NULL".
@@ -83,7 +82,7 @@ bool esVisible(ManagementShape manejadorDeFiguras,std::string nombre);
 bool esCirculo(ManagementShape manejadorDeFiguras, std::string);
 
 //Dados dos numeros irracionales, actualiza ambas velocidades de la figura dada
-void actualizarVelocidades(ManagementShape manejadorDeFiguras,float velocidadX, float velocidadY);
+void actualizarVelocidades(ManagementShape manejadorDeFiguras,std::string nombre,float velocidadX, float velocidadY);
 
 //Dado un controlador de figuras y un nombre, cambia el "sentido" de la direccion X de la figura con el nombre dado.
 //Precond: Existe la figura con el nombre dado.
