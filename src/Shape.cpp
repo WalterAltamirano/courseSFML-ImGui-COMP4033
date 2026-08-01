@@ -160,6 +160,8 @@ sf::RectangleShape obtenerRectangulo(ManagementShape mSh, std::string nombre) {
     exit(1);
 }
 
+//Dado un controlador de figuras y un nombre, posiciona la figura de nombre "nombre" en la posicion que resulta 
+// de sumar sus velocidades a su correspondientes coordenadas de su posicion actual. 
 void actualizarPosicionConSuVelocidad(ManagementShape mSh, std::string nombre) {
     NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
     if(figuraDada->esCirculo) {
@@ -177,6 +179,7 @@ void actualizarPosicionConSuVelocidad(ManagementShape mSh, std::string nombre) {
     }
 }
 
+//Dado un controlador de figuras y un nombre, posiciona la figura de nombre "nombre" en la posicion (0,0) (origen)
 void actualizarPosicionAlOrigen(ManagementShape mSh, std::string nombre) {
     NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
     if(figuraDada->esCirculo) {
@@ -189,12 +192,13 @@ void actualizarPosicionAlOrigen(ManagementShape mSh, std::string nombre) {
         figuraDada->figuraRectangulo = rectangle;
     }
 }
-
+//Dado un controlador de figuras, un nombre y una velocidadX, actualiza la velocidad Y de la figura dada.
 void actualizarVelocidadX(ManagementShape mSh, std::string nombre, float velocidadX) {
     NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
     figuraDada->velocidadX = velocidadX;
 }
 
+//Dado un controlador de figuras, un nombre y una velocidadX, actualiza la velocidad X de la figura dada.
 void actualizarVelocidadY(ManagementShape mSh, std::string nombre, float velocidadY) {
     NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
     figuraDada->velocidadY = velocidadY;

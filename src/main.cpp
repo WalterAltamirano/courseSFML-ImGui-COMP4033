@@ -98,8 +98,11 @@ int main(int argc, char *argv[])
         static int indexShapeSelected = 0;
         //ShapeStr* shapes[] = {circleG,circleB, circleP,rectR, rectG,rectT};
         ImGui::Combo("Shapes", &indexShapeSelected, shapesCombo, IM_ARRAYSIZE(shapesCombo));
+        
+        //Actualizo la referencia de ImGui con las velocidades de la figura seleccionada actual.
         shapeSpeedX = obtenerVelocidadXDe(controladorFiguras,shapesCombo[indexShapeSelected]);
         shapeSpeedY = obtenerVelocidadYDe(controladorFiguras,shapesCombo[indexShapeSelected]);
+        
         //Dibujar Figura
         if(ImGui::Checkbox("Dibujar Figura", &drawShape)) {
             actualizarDibujadoDe(controladorFiguras,shapesCombo[indexShapeSelected], drawShape);
