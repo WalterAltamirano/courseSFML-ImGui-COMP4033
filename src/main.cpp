@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     }
     //Reloj
     sf::Clock clock;
-    ImGui::GetStyle().ScaleAllSizes(2.0f);
-    ImGui::GetIO().FontGlobalScale = 2.0f;
+    ImGui::GetStyle().ScaleAllSizes(1.0f);
+    ImGui::GetIO().FontGlobalScale = 1.0f;
 
     //Inicializando figuras con sus caracteristicas.
     sf::Vector2f vec2 = {20.0, 10.0};
@@ -46,19 +46,11 @@ int main(int argc, char *argv[])
     //########Rectangulo Verde############
     agregarRectangulo(controladorFiguras,20.0f,10.0f,"RGray",0.6f,0.6f,200.0f,335.5f);
 
-    sf::CircleShape blueCircle = obtenerCirculo(controladorFiguras,"CBlue");
-    sf::CircleShape purpleCircle = obtenerCirculo(controladorFiguras,"CPurple");
-    sf::CircleShape greenCircle = obtenerCirculo(controladorFiguras,"CGreen");
-    sf::RectangleShape tealRectangle = obtenerRectangulo(controladorFiguras,"RTail");
-    sf::RectangleShape redRectangle = obtenerRectangulo(controladorFiguras,"RRed");
-    sf::RectangleShape grayRectangle = obtenerRectangulo(controladorFiguras,"RGray");
-
-
     //Variables interactivas con interfaz ImGui de figura actual elegida.
     float radiusFigureSelected = 50;
     int circleSegments = 32;
-    float shapeSpeedX = 1.0f;
-    float shapeSpeedY = 0.5f;
+    float shapeSpeedX = 0.0f;
+    float shapeSpeedY = 0.0f;
     bool drawText = true;
     bool drawShape = true;
 
@@ -106,7 +98,8 @@ int main(int argc, char *argv[])
         static int indexShapeSelected = 0;
         //ShapeStr* shapes[] = {circleG,circleB, circleP,rectR, rectG,rectT};
         ImGui::Combo("Shapes", &indexShapeSelected, shapesCombo, IM_ARRAYSIZE(shapesCombo));
-        std::string nameActualShape = shapesCombo[indexShapeSelected];
+        shapeSpeedX = obtenerVelocidadXDe(controladorFiguras,shapesCombo[indexShapeSelected]);
+        shapeSpeedY = obtenerVelocidadYDe(controladorFiguras,shapesCombo[indexShapeSelected]);
         //Dibujar Figura
         if(ImGui::Checkbox("Dibujar Figura", &drawShape)) {
             actualizarDibujadoDe(controladorFiguras,shapesCombo[indexShapeSelected], drawShape);
@@ -117,9 +110,8 @@ int main(int argc, char *argv[])
         ImGui::Checkbox("Dibujar Texto", &drawText);
         
         //Velocidades Figura Actual
-        ImGui::SliderFloat("VelocidadX",&shapeSpeedX, 0.0f, 10.0f);
-        ImGui::SameLine();
-        ImGui::SliderFloat("VelocidadY",&shapeSpeedY, 0.0f, 10.0f);
+        ImGui::SliderFloat("VelocidadX",&shapeSpeedX, -10.0f, 10.0f);
+        ImGui::SliderFloat("VelocidadY",&shapeSpeedY, -10.0f, 10.0f);
 
         //Escalar Figura Actual
         //ImGui::SliderFloat("Escala", &shapes[indexShapeSelected]->radio, 0.0f, 300.0f);
@@ -139,38 +131,40 @@ int main(int argc, char *argv[])
         if (ImGui::Button("Resetear Posicion Inicial Figura"))
         {
             sf::Vector2f origin(0.0f,0.0f);
-            if(esCirculo(controladorFiguras,nameActualShape)) 
+            if(esCirculo(controladorFiguras,shapesCombo[indexShapeSelected])) 
             {
-                obtenerCirculo(controladorFiguras,nameActualShape).setPosition(origin);
+                actualizarPosicionAlOrigen(controladorFiguras,shapesCombo[indexShapeSelected]);
             } else {
-                obtenerRectangulo(controladorFiguras, nameActualShape).setPosition(origin);
+                actualizarPosicionAlOrigen(controladorFiguras, shapesCombo[indexShapeSelected]);
             }
         }
         ImGui::End();
 
         //Actualizar Inputs de ImGui para Figura Actual
-        if(esCirculo(controladorFiguras,nameActualShape)) {
-            sf::CircleShape circleActual = obtenerCirculo(controladorFiguras,nameActualShape);
+        if(esCirculo(controladorFiguras,shapesCombo[indexShapeSelected])) {
+            sf::CircleShape circleActual = obtenerCirculo(controladorFiguras,shapesCombo[indexShapeSelected]);
             circleActual.setRadius(radiusFigureSelected);
             circleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
         } else {
-            sf::RectangleShape rectangleActual = obtenerRectangulo(controladorFiguras,nameActualShape);
+            sf::RectangleShape rectangleActual = obtenerRectangulo(controladorFiguras,shapesCombo[indexShapeSelected]);
             rectangleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
         }
-            
 
+        actualizarVelocidadX(controladorFiguras,shapesCombo[indexShapeSelected],shapeSpeedX);
+        actualizarVelocidadY(controladorFiguras,shapesCombo[indexShapeSelected],shapeSpeedY);
+        
         //Cambiar direccion si tocan el borde
         for (int i = 0; i < IM_ARRAYSIZE(shapesCombo); i++) 
         {
             std::string figuraActual = shapesCombo[i];
             if(esCirculo(controladorFiguras,figuraActual)) {
                 sf::CircleShape circleActual = obtenerCirculo(controladorFiguras,figuraActual);
-                if(circleActual.getGlobalBounds().position.x < 0 ||
+                if(circleActual.getGlobalBounds().position.x < 0.0f ||
                     circleActual.getGlobalBounds().position.x > wWidth) 
                 {
                         invertirVelocidadXDe(controladorFiguras,figuraActual);
                 }
-                if(circleActual.getGlobalBounds().position.y < 0 ||
+                if(circleActual.getGlobalBounds().position.y < 0.0f ||
                     circleActual.getGlobalBounds().position.y > wHeight) 
                 {
                         invertirVelocidadYDe(controladorFiguras,figuraActual);
@@ -178,42 +172,31 @@ int main(int argc, char *argv[])
 
             } else {
                 sf::RectangleShape rectangleActual = obtenerRectangulo(controladorFiguras,figuraActual);
-                rectangleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+                if(rectangleActual.getGlobalBounds().position.x < 0.0f ||
+                    rectangleActual.getGlobalBounds().position.x > wWidth) 
+                {
+                        invertirVelocidadXDe(controladorFiguras,figuraActual);
+                }
+                if(rectangleActual.getGlobalBounds().position.y < 0.0f ||
+                    rectangleActual.getGlobalBounds().position.y > wHeight) 
+                {
+                        invertirVelocidadYDe(controladorFiguras,figuraActual);
+                }
             }
         }
-
+        
         //Actualizar posiciones segun su velocidad.
-        blueCircle.setPosition({
-                blueCircle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "CBlue"),
-                blueCircle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "CBlue")
-        });
-        purpleCircle.setPosition({
-                purpleCircle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "CPurple"),
-                purpleCircle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "CPurple")
-        });
-        greenCircle.setPosition({
-                greenCircle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "CGreen"),
-                greenCircle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "CGreen")
-        });
-        tealRectangle.setPosition({
-                tealRectangle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "RTail"),
-                tealRectangle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "RTail")
-        });
-        redRectangle.setPosition({
-                redRectangle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "RRed"),
-                redRectangle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "RRed")
-        });
-        grayRectangle.setPosition({
-                grayRectangle.getPosition().x + obtenerVelocidadXDe(controladorFiguras, "RGray"),
-                grayRectangle.getPosition().y + obtenerVelocidadYDe(controladorFiguras, "RGray")
-        });
+        actualizarPosicionConSuVelocidad(controladorFiguras,"CBlue");
+        actualizarPosicionConSuVelocidad(controladorFiguras, "CPurple");
+        actualizarPosicionConSuVelocidad(controladorFiguras, "CGreen");
+        actualizarPosicionConSuVelocidad(controladorFiguras, "RTail");
+        actualizarPosicionConSuVelocidad(controladorFiguras, "RRed");
+        actualizarPosicionConSuVelocidad(controladorFiguras, "RGray");
 
         //Renderizado
         window.clear();
 
         //Si en este frame se cambio que se dibuje la figura seleccionada, entonces lo cambio.
-        
-
         for(int i = 0; i < IM_ARRAYSIZE(shapesCombo); i++) 
         {
             std::string figuraActual = shapesCombo[i];

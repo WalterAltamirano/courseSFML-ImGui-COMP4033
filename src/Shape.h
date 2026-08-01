@@ -103,4 +103,15 @@ sf::CircleShape obtenerCirculo(ManagementShape manejadorDeFiguras, std::string n
 //Dado un controlador de figuras y un nombre, retorna la figura de tipo rectangulo al nombre dado.
 //Precond: existe una figura tipo rectangulo con el nombre dado.
 sf::RectangleShape obtenerRectangulo(ManagementShape manejadorDeFiguras, std::string nombre);
-    
+
+//Dado un controlador de figuras y un nombre, posiciona la figura de nombre "nombre" en la posicion que resulta 
+// de sumar sus velocidades a su correspondientes coordenadas de su posicion actual.      
+void actualizarPosicionConSuVelocidad(ManagementShape manejadorDeFiguras, std::string nombre);
+//Dado un controlador de figuras y un nombre, posiciona la figura de nombre "nombre" en la posicion (0,0) (origen)
+void actualizarPosicionAlOrigen(ManagementShape manejadorDeFiguras, std::string nombre);
+
+//Dado un controlador de figuras, un nombre y una velocidadX, actualiza la velocidad Y de la figura dada.
+void actualizarVelocidadX(ManagementShape manejadorDeFiguras, std::string nombre, float velocidadX);
+
+//Dado un controlador de figuras, un nombre y una velocidadX, actualiza la velocidad X de la figura dada.
+void actualizarVelocidadY(ManagementShape manejadorDeFiguras, std::string nombre, float velocidadY);

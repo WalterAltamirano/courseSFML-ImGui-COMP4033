@@ -114,14 +114,14 @@ bool esCirculo(ManagementShape mSh,std::string nombre){
 //Precond: Existe la figura con el nombre dado.
 void invertirVelocidadXDe(ManagementShape mSh, std::string nombre){
     NodeSh figuraDada = figuraNodoConNombre(mSh,nombre);
-    figuraDada->velocidadX = figuraDada->velocidadX * (-1); 
+    figuraDada->velocidadX = figuraDada->velocidadX * (-1.0f); 
 }
 
 //Dado un controlador de figuras y un nombre, cambia el "sentido" de la direccion Y de la figura con el nombre dado.
 //Precond: Existe la figura con el nombre dado.
 void invertirVelocidadYDe(ManagementShape mSh, std::string nombre){
     NodeSh figuraDada = figuraNodoConNombre(mSh,nombre);
-    figuraDada->velocidadY = figuraDada->velocidadY * (-1); 
+    figuraDada->velocidadY = figuraDada->velocidadY * (-1.0f); 
 }
 
 //Dados dos numeros irracionales, actualiza ambas velocidades de la figura dada
@@ -158,4 +158,44 @@ sf::RectangleShape obtenerRectangulo(ManagementShape mSh, std::string nombre) {
     }
     std::cerr << "La figura no es un rectangulo" << std::endl;
     exit(1);
+}
+
+void actualizarPosicionConSuVelocidad(ManagementShape mSh, std::string nombre) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    if(figuraDada->esCirculo) {
+        sf::CircleShape circle = figuraDada->figuraCirculo;
+        circle.setPosition(
+            {circle.getPosition().x + figuraDada->velocidadX, circle.getPosition().y + figuraDada->velocidadY}
+        );
+        figuraDada->figuraCirculo = circle;
+    } else {
+        sf::RectangleShape rectangle = figuraDada->figuraRectangulo;
+        rectangle.setPosition(
+            {rectangle.getPosition().x + figuraDada->velocidadX, rectangle.getPosition().y + figuraDada->velocidadY}
+        );
+        figuraDada->figuraRectangulo = rectangle;
+    }
+}
+
+void actualizarPosicionAlOrigen(ManagementShape mSh, std::string nombre) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    if(figuraDada->esCirculo) {
+        sf::CircleShape circle = figuraDada->figuraCirculo;
+        circle.setPosition({0.0f, 0.0f});
+        figuraDada->figuraCirculo = circle;
+    } else {
+        sf::RectangleShape rectangle = figuraDada->figuraRectangulo;
+        rectangle.setPosition({0.0f, 0.0f});
+        figuraDada->figuraRectangulo = rectangle;
+    }
+}
+
+void actualizarVelocidadX(ManagementShape mSh, std::string nombre, float velocidadX) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    figuraDada->velocidadX = velocidadX;
+}
+
+void actualizarVelocidadY(ManagementShape mSh, std::string nombre, float velocidadY) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    figuraDada->velocidadY = velocidadY;
 }
