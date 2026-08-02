@@ -28,15 +28,18 @@ NodeSh figuraNodoConNombre(ManagementShape mSh ,std::string nombre) {
 
 //Dado un nombre, las velocidades en los ejes y un radio, construye un circulo.
 //Obs: por default el color es Blanco
-void agregarCirculo(ManagementShape mSh,float ancho,float altura,std::string nombreFigura,float velocidadX,float velocidadY,float radio,float posX, float posY){
+void agregarCirculo(ManagementShape mSh,float radio,float segmentos,std::string nombreFigura,float velocidadX,float velocidadY,float posX, float posY){
     if(mSh != NULL) {
         NodeSh newNode = new ShapeNode;
         newNode->esVisible = true;
         newNode->esCirculo = true;
-        sf::CircleShape nuevoCirculo = sf::CircleShape(ancho,altura);
+        newNode->tamañoOriginal = sf::Vector2f(radio,segmentos);
+        sf::CircleShape nuevoCirculo = sf::CircleShape(radio,segmentos);
         nuevoCirculo.setPosition({posX, posY});
+        nuevoCirculo.setPointCount(segmentos);
         nuevoCirculo.setRadius(radio);
         newNode->figuraCirculo = nuevoCirculo;
+        newNode->escala = 0.0f;
         newNode->velocidadX = velocidadX;
         newNode->velocidadY = velocidadY;
         newNode->nombre = nombreFigura;
@@ -59,9 +62,11 @@ void agregarRectangulo(ManagementShape mSh,float ancho,float altura,std::string 
         NodeSh newNode = new ShapeNode;
         newNode->esVisible = true;
         newNode->esCirculo = false;
+        newNode->tamañoOriginal = sf::Vector2f(ancho,altura);
         sf::RectangleShape nuevoRectangulo = sf::RectangleShape({ancho,altura});
         nuevoRectangulo.setPosition({posX, posY});
         newNode->figuraRectangulo= nuevoRectangulo;
+        newNode->escala = 0.0f;
         newNode->velocidadX = velocidadX;
         newNode->velocidadY = velocidadY;
         newNode->nombre = nombreFigura;
@@ -94,8 +99,14 @@ float obtenerVelocidadYDe(ManagementShape mSh, std::string nombre){
 //Dada una figura, la pinta de los colores dados
 //Precond: Los colores se representan entre el rango 0 y 1 en formato RGB (en ese orden). 
 //Obs: Recibe un array de 3 elementos en ese orden
-void pintarFiguraDe(ManagementShape mSh,std::string nombre,float colores[]){
+void pintarFiguraDe(ManagementShape mSh,std::string nombre,float* c){
     NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    sf::CircleShape nuevoCirculo = figuraDada->figuraCirculo;
+    nuevoCirculo.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+    figuraDada->figuraCirculo = nuevoCirculo;
+    figuraDada->colores[0] = c[0];
+    figuraDada->colores[1] = c[1];
+    figuraDada->colores[2] = c[2];
 }
 
 //Dada una figura, indica si esta visible en pantalla o no.
@@ -203,3 +214,39 @@ void actualizarVelocidadY(ManagementShape mSh, std::string nombre, float velocid
     NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
     figuraDada->velocidadY = velocidadY;
 }
+
+//Dado un controlador de figuras, un nombre y un valor de radio, aumenta el radio con "valorAAumentar" de la figura con nombre dado.
+//Precond: Existe la figura con nombre dado y es un circulo
+
+//Dado un controlador de figuras, un nombre y un valor a escalar, escala la figura con nombre dado "valorAEscalar" de veces.
+void escalarFigura(ManagementShape mSh, std::string nombre, float valorAEscalar) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh,nombre);
+    if(!figuraDada->esCirculo) {
+        sf::RectangleShape nuevoRectangulo = figuraDada->figuraRectangulo;
+        sf::Vector2f escalaRectangulo = nuevoRectangulo.getScale();
+        nuevoRectangulo.setScale({nuevoRectangulo.getSize().x * valorAEscalar , nuevoRectangulo.getSize().y * valorAEscalar});
+        figuraDada->figuraRectangulo = nuevoRectangulo;
+    } else {
+        sf::CircleShape nuevoCirculo = figuraDada->figuraCirculo;
+        nuevoCirculo.setRadius(nuevoCirculo.getRadius() * valorAEscalar);
+        figuraDada->figuraCirculo = nuevoCirculo;
+    }
+}
+
+float escalaDe(ManagementShape mSh, std::string nombre) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    return figuraDada->escala;
+}
+
+float* coloresDe(ManagementShape mSh, std::string nombre) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    return figuraDada->colores;
+}
+
+void actualizarEscala(ManagementShape mSh, std::string nombre, float escalaNueva) {
+    NodeSh figuraDada = figuraNodoConNombre(mSh, nombre);
+    figuraDada->escala = escalaNueva;
+}
+//
+
+//

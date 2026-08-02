@@ -7,7 +7,9 @@
 struct ShapeNode {
     sf::CircleShape figuraCirculo;
     sf::RectangleShape figuraRectangulo;
+    sf::Vector2f tamañoOriginal;
     std::string nombre;
+    float escala;
     float colores[CANTIDADCOLORES];
     float velocidadX;
     float velocidadY;
@@ -56,7 +58,7 @@ ManagementShape crearControlador();
 
 //Dado un nombre, las velocidades en los ejes y un radio, construye un circulo.
 //Obs: por default el color es Blanco
-void agregarCirculo(ManagementShape manejadorDeFiguras,float ancho,float altura,std::string nombreFigura, float velocidadX, float velocidadY, float radio,float posX, float posY);
+void agregarCirculo(ManagementShape manejadorDeFiguras,float radio,float segmentos,std::string nombreFigura, float velocidadX, float velocidadY,float posX, float posY);
 
 //Dado un nombre, las velocidades en los ejes y un radio, construye un rectangulo.
 //Obs: por default el color es Blanco
@@ -73,7 +75,7 @@ float obtenerVelocidadYDe(ManagementShape manejadorDeFiguras, std::string nombre
 //Dada una figura, la pinta de los colores dados
 //Precond: Los colores se representan entre el rango 0 y 1 en formato RGB (en ese orden). 
 //Obs: Recibe un array de 3 elementos en ese orden
-void pintarFiguraDe(ManagementShape manejadorDeFiguras ,float colores[]);
+void pintarFiguraDe(ManagementShape manejadorDeFiguras, std::string nombre,float colores[]);
 
 //Dada una figura, indica si esta visible en pantalla o no.
 bool esVisible(ManagementShape manejadorDeFiguras,std::string nombre);
@@ -116,3 +118,16 @@ void actualizarVelocidadX(ManagementShape manejadorDeFiguras, std::string nombre
 
 //Dado un controlador de figuras, un nombre y una velocidadX, actualiza la velocidad X de la figura dada.
 void actualizarVelocidadY(ManagementShape manejadorDeFiguras, std::string nombre, float velocidadY);
+
+//Dado un controlador de figuras, un nombre y valores a escalar, escala la figura con nombre dado su ancho y altura con
+//los valores a escalar dados.
+//Precond: Existe la figura con nombre dado y es un rectangulo
+void escalarFigura(ManagementShape manejadorDeFiguras, std::string nombre, float valorAEscalar);
+
+//
+float escalaDe(ManagementShape manejadorDeFiguras, std::string nombre);
+
+
+float* coloresDe(ManagementShape manejadorDeFiguras, std::string nombre);
+
+void actualizarEscala(ManagementShape manejadorDeFiguras, std::string nombre, float escalaNueva);
