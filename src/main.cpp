@@ -27,15 +27,18 @@ int main(int argc, char *argv[])
     ManagementShape controladorFiguras = crearControlador();
     
     //########Circulo AZul############
-    float c[3] = {0.0f, 1.0f, 1.0f};
+    float* c = new float[3];
+    c[0] = 0.0f;
+    c[1] = 1.0f;
+    c[2] = 1.0f;
     //circleB->colores = {0.0f, 1.0f, 1.0f};
-    agregarCirculo(controladorFiguras,20.0f,10.0f,"CBlue",1.0f,0.5f,1.0f,10.0f,10.0f);
+    agregarCirculo(controladorFiguras,20.0f,32.0f,"CBlue",1.0f,0.5f,10.0f,10.0f);
     
     //########Circulo Purpura############
-    agregarCirculo(controladorFiguras,50.0f,10.0f,"CPurple",0.1f,0.6f,1.0f,100.0f,200.0f);
+    agregarCirculo(controladorFiguras,50.0f,32.0f,"CPurple",0.1f,0.6f,100.0f,200.0f);
     
     //########Circulo Verde############
-    agregarCirculo(controladorFiguras,100.0f,10.0f,"CGreen",1.0f,0.5f,0.8f,60.0f,445.0f);
+    agregarCirculo(controladorFiguras,100.0f,32.0f,"CGreen",1.0f,0.5f,60.0f,445.0f);
 
      //########Rectangulo Fuxia azul############
     agregarRectangulo(controladorFiguras,20.0f,10.0f,"RTail",1.0f,0.4f,300.0f,500.0f);
@@ -47,8 +50,8 @@ int main(int argc, char *argv[])
     agregarRectangulo(controladorFiguras,20.0f,10.0f,"RGray",0.6f,0.6f,200.0f,335.5f);
 
     //Variables interactivas con interfaz ImGui de figura actual elegida.
-    float radiusFigureSelected = 50;
-    int circleSegments = 32;
+    float scale = 1.0f;
+    float radio = 32.0f;
     float shapeSpeedX = 0.0f;
     float shapeSpeedY = 0.0f;
     bool drawText = true;
@@ -96,16 +99,20 @@ int main(int argc, char *argv[])
         // Version de opciones con tamaño fijo.
         const char* shapesCombo[] = {"CGreen", "CBlue", "CPurple","RRed","RGray", "RTail"};
         static int indexShapeSelected = 0;
-        //ShapeStr* shapes[] = {circleG,circleB, circleP,rectR, rectG,rectT};
+        
         ImGui::Combo("Shapes", &indexShapeSelected, shapesCombo, IM_ARRAYSIZE(shapesCombo));
+        std::string shapeSelected = shapesCombo[indexShapeSelected];
         
         //Actualizo la referencia de ImGui con las velocidades de la figura seleccionada actual.
-        shapeSpeedX = obtenerVelocidadXDe(controladorFiguras,shapesCombo[indexShapeSelected]);
-        shapeSpeedY = obtenerVelocidadYDe(controladorFiguras,shapesCombo[indexShapeSelected]);
+        shapeSpeedY = obtenerVelocidadYDe(controladorFiguras,shapeSelected);
+        shapeSpeedX = obtenerVelocidadXDe(controladorFiguras,shapeSelected);
+        
+        //Asignar escala o radio de figura actual
+        scale = escalaDe(controladorFiguras,shapeSelected);
         
         //Dibujar Figura
         if(ImGui::Checkbox("Dibujar Figura", &drawShape)) {
-            actualizarDibujadoDe(controladorFiguras,shapesCombo[indexShapeSelected], drawShape);
+            actualizarDibujadoDe(controladorFiguras,shapeSelected, drawShape);
         };
         ImGui::SameLine();
         
@@ -113,14 +120,15 @@ int main(int argc, char *argv[])
         ImGui::Checkbox("Dibujar Texto", &drawText);
         
         //Velocidades Figura Actual
-        ImGui::SliderFloat("VelocidadX",&shapeSpeedX, -10.0f, 10.0f);
-        ImGui::SliderFloat("VelocidadY",&shapeSpeedY, -10.0f, 10.0f);
-
+        ImGui::SliderFloat("VelocidadX",&shapeSpeedX, -8.0f, 8.0f);
+        ImGui::SliderFloat("VelocidadY",&shapeSpeedY, -8.0f, 8.0f);
+        
         //Escalar Figura Actual
-        //ImGui::SliderFloat("Escala", &shapes[indexShapeSelected]->radio, 0.0f, 300.0f);
+        ImGui::SliderFloat("Escala", &scale, 0.0f, 4.0f);
         
         //Cambiar Colores de Figura Actual
         ImGui::ColorEdit3("Color del circulo", c);
+        c = coloresDe(controladorFiguras, shapeSelected);
         
         //Cambiar Texto Ingresado
         ImGui::InputText("Texto", displayString, 255);
@@ -134,27 +142,18 @@ int main(int argc, char *argv[])
         if (ImGui::Button("Resetear Posicion Inicial Figura"))
         {
             sf::Vector2f origin(0.0f,0.0f);
-            if(esCirculo(controladorFiguras,shapesCombo[indexShapeSelected])) 
-            {
-                actualizarPosicionAlOrigen(controladorFiguras,shapesCombo[indexShapeSelected]);
-            } else {
-                actualizarPosicionAlOrigen(controladorFiguras, shapesCombo[indexShapeSelected]);
-            }
+            actualizarPosicionAlOrigen(controladorFiguras,shapeSelected);
         }
         ImGui::End();
 
-        //Actualizar Inputs de ImGui para Figura Actual
-        if(esCirculo(controladorFiguras,shapesCombo[indexShapeSelected])) {
-            sf::CircleShape circleActual = obtenerCirculo(controladorFiguras,shapesCombo[indexShapeSelected]);
-            circleActual.setRadius(radiusFigureSelected);
-            circleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
-        } else {
-            sf::RectangleShape rectangleActual = obtenerRectangulo(controladorFiguras,shapesCombo[indexShapeSelected]);
-            rectangleActual.setFillColor(sf::Color(uint8_t(c[0] * 255), uint8_t(c[1] * 255), uint8_t(c[2] * 255)));
+        if(escalaDe(controladorFiguras,shapeSelected) != scale) {
+            actualizarEscala(controladorFiguras,shapeSelected, scale);
+            escalarFigura(controladorFiguras, shapeSelected,scale);
         }
-
-        actualizarVelocidadX(controladorFiguras,shapesCombo[indexShapeSelected],shapeSpeedX);
-        actualizarVelocidadY(controladorFiguras,shapesCombo[indexShapeSelected],shapeSpeedY);
+        pintarFiguraDe(controladorFiguras,shapeSelected,c);
+        
+        actualizarVelocidadX(controladorFiguras,shapeSelected,shapeSpeedX);
+        actualizarVelocidadY(controladorFiguras,shapeSelected,shapeSpeedY);
         
         //Cambiar direccion si tocan el borde
         for (int i = 0; i < IM_ARRAYSIZE(shapesCombo); i++) 
